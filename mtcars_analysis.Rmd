@@ -1,0 +1,97 @@
+# Regression Models Course Project
+
+##Summary<br>
+**In this analysis we wish to study the effect of transmission on miles per gallon.We conducted t test which alludes that there is significant difference in mpg for  automatic and manual tranmission.**  
+
+**The fitted model suggest that estimated mpg for manual transmission is 2.9358  more than  the estimated mpg for automatic transmission,provided the other variables are kept constant.**
+<br>
+
+### Data processing<br>
+```{r}
+library(dplyr)
+library(ggplot2)
+data(mtcars)
+mtcars$am<-as.factor(mtcars$am)
+levels(mtcars$am)=c("at","mt")
+
+```
+The mtcars dataset has been loaded to be analysed.The column am(transmission) has been tranformed into factor with levels at(automatic) and mt(manual).<br>
+
+### Exploratory Data Analysis.<br>
+In this analysis we specifically wish to answer the question-Is an automatic or manual transmission better for MPG?.Hence our exploratory analysis will revolve aroung mpg and am(transmission).<br>
+```{r}
+pairs(mtcars,col="blue")
+
+```
+
+The above pair plot shows potential relationships between different variables of the mtcars dataset.
+
+```{r}
+str(mtcars)
+ggplot(mtcars,aes(am,mpg,fill=am))+geom_boxplot()+labs(x="Transmission")+labs(y="miles per gallon")+labs(title="Camparison of miles per gallon for different transmissions.")
+```
+
+*Miles per gallon seems to differ according to transmission.Hence formal inference should be conducted over this idea.*<br>
+
+### Formal Hypothesis testing<br>
+```{r}
+mpg_at<-select(filter(mtcars,am=="at"),mpg)
+mpg_mt<-select(filter(mtcars,am=="mt"),mpg)
+t.test(mpg_at,mpg_mt)
+```
+
+The p value is less than 0.05 and hence we fail to accept the null hypothesis.The T test alludes to statistically significant difference between mpg of automatic and manual transmission.<br>
+
+### Linear Models<br>
+**Model 1**
+
+```{r}
+fit1<-lm(mpg~am,data=mtcars)
+summary(fit1)
+```
+
+In this models both the intercept and coefficient are statistically significant.Acoording to the model the estimated mpg for manual transmission is 7.245 more than the automatic transmission.The R^2 of the model is 0.3598,which alludes that this model only explains 35.98% of the relationship.<br>
+
+**Model 2**
+
+```{r}
+fit2<-step(lm(mpg~.,data=mtcars),trace=0)
+summary(fit2)
+```
+
+The step algorithm picks the variables which have highest effect on the mpg for the model.Acoording to this model transmission,weight and qsec(1/4 mile time) seems to have highest effect on mpg.<br>
+*This model suggests that mpg for manual transmission is 2.9358 more than mpg of automatic transmission,provided the other variables are kept constant.*<br>
+The adjusted R^2 suggests that around 83.36% of the relationship is explained by the model.<br>
+
+### Anova testing<br>
+
+```{r}
+anova(fit1,fit2)
+```
+
+According to the anova testing,fit2 is signifiantly better model tha fit1.It explains around 83.36% of the  relationship.<br>
+
+### Residual testing for the chosen model.
+
+residual plots<br>
+```{r}
+par(mfrow=c(2,2))
+plot(fit2)
+```
+
+There does not seem to be any pattern between residuals and the fitted value and residuals seems to follow normal distribution.<br>
+
+**Shapiro wilk test**<br>
+```{r}
+shapiro.test(fit2$residuals)
+```
+
+The p value is 0.08043 and hence we fail to reject the null hypothesis.The null hypothesis suggest the normality of the residuals.<br>
+
+## Conclusion<br>
+**The fitted model suggest that estimated mpg for manual transmission is 2.9358 more than the estimated mpg for automatic transmission,when other variables are kept constant.**
+
+
+
+
+
